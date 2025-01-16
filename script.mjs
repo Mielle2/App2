@@ -37,9 +37,18 @@ function getQuote(req, res, next) {
     res.status(HTTP_CODES.SUCCESS.OK).send(randomQuote).end();
 }
 
+function getSum(req, res, next) {
+    const a = parseFloat(req.params.a);
+    const b = parseFloat(req.params.b);
+    const sum = a + b;
+
+    res.status(HTTP_CODES.SUCCESS.OK).send(`The sum of ${a} and ${b} is ${sum}`).end();
+}
+
 server.get("/", getRoot);
 server.get("/tmp/poem", getPoem);
 server.get("/tmp/quote", getQuote);
+server.post("/tmp/sum/:a/:b", getSum);
 
 server.listen(server.get('port'), function () {
     console.log('server running', server.get('port'));
