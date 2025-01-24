@@ -66,21 +66,7 @@ function makeDeck(req, res, next) {
   const deckId = myDeckId++;
 
   const suits = ["hearts", "diamonds", "clubs", "spades"];
-  const values = [
-    "2",
-    "3",
-    "4",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "J",
-    "Q",
-    "K",
-    "A",
-  ];
+  const values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A",];
 
   const deck = [];
 
@@ -113,8 +99,18 @@ function shuffleDeck(req, res, next) {
   res.status(HTTP_CODES.SUCCESS.OK).send({ shuffleMSG, deck });
 }
 
+function getDeck(req, res, next) {
+    const { deck_id } = req.params;
+    const deck = decks[deck_id];
+    const cardsInDeck = deck.filter(card => !card.drawn);
+    const yourDeckMSG = "Heres your deck"
+
+    res.status(HTTP_CODES.SUCCESS.OK).send({ yourDeckMSG, remaining_cards: cardsInDeck });
+}
+
 server.post("/temp/deck", makeDeck);
 server.patch("/temp/deck/shuffle/:deck_id", shuffleDeck);
+server.get("/temp/deck/:deck_id", getDeck);
 
 server.listen(server.get("port"), function () {
   console.log("server running", server.get("port"));
