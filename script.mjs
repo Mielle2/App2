@@ -62,9 +62,25 @@ server.post("/tmp/sum/:a/:b", getSum);
 const decks = {};
 let myDeckId = 1;
 
-function makeDeck() {
+function makeDeck(req, res, next) {
+  const deckId = myDeckId++;
+
   const suits = ["hearts", "diamonds", "clubs", "spades"];
-  const values = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A",];
+  const values = [
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A",
+  ];
 
   const deck = [];
 
@@ -73,19 +89,32 @@ function makeDeck() {
       deck.push({ value, suit });
     }
   }
-  return deck;
-};
 
-server.post("/temp/deck", (req, res) => {
-    const deckId = myDeckId++;
-    const newDeck = makeDeck(); 
-    decks[deckId] = newDeck;
-  
-    res
-        .status(HTTP_CODES.SUCCESS.OK)
-        .send({ message: "New deck created", deck_id: deckId })
-        .end();
-  });
+  decks[deckId] = deck;
+  const deckMSG = "New deck created";
+
+  res.status(HTTP_CODES.SUCCESS.OK).send({ deckMSG, deck_id: deckId }).end();
+}
+
+function shuffleDeck(req, res, next) {
+  const { deck_id } = req.params;
+  const deck = decks[deck_id];
+  const shuffleMSG = "Deck shuffled";
+
+  if (!deck) {
+    return res.status(HTTP_CODES.CLIENT_ERROR.NOT_FOUND).send({ message: "Deck not found" });
+  }
+
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+
+  res.status(HTTP_CODES.SUCCESS.OK).send({ shuffleMSG, deck });
+}
+
+server.post("/temp/deck", makeDeck);
+server.patch("/temp/deck/shuffle/:deck_id", shuffleDeck);
 
 server.listen(server.get("port"), function () {
   console.log("server running", server.get("port"));
