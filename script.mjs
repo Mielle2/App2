@@ -72,11 +72,11 @@ function makeDeck(req, res, next) {
 
   for (const suit of suits) {
     for (const value of values) {
-      deck.push({ value, suit });
+        deck.push({ value, suit, drawn: false });
     }
   }
 
-  decks[deckId] = deck;
+  decks[deckId] = { cards: deck, drawnCards: [] };
   const deckMSG = "New deck created";
 
   res.status(HTTP_CODES.SUCCESS.OK).send({ deckMSG, deck_id: deckId }).end();
@@ -84,8 +84,10 @@ function makeDeck(req, res, next) {
 
 function shuffleDeck(req, res, next) {
   const { deck_id } = req.params;
-  const deck = decks[deck_id];
+  const deckData = decks[deck_id];
+
   const shuffleMSG = "Deck shuffled";
+  const deck = deckData.cards;
 
   if (!deck) {
     return res.status(HTTP_CODES.CLIENT_ERROR.NOT_FOUND).send({ message: "Deck not found" });
@@ -96,21 +98,42 @@ function shuffleDeck(req, res, next) {
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
 
-  res.status(HTTP_CODES.SUCCESS.OK).send({ shuffleMSG, deck });
+  res.status(HTTP_CODES.SUCCESS.OK).send({ shuffleMSG, deck }).end();
 }
 
 function getDeck(req, res, next) {
     const { deck_id } = req.params;
-    const deck = decks[deck_id];
-    const cardsInDeck = deck.filter(card => !card.drawn);
-    const yourDeckMSG = "Heres your deck"
+    const deckData = decks[deck_id];
 
-    res.status(HTTP_CODES.SUCCESS.OK).send({ yourDeckMSG, remaining_cards: cardsInDeck });
+    const cardsInDeck = deckData.cards.filter(card => !card.drawn);
+    const drawnCards = deckData.cards.filter((card) => card.drawn);
+    const yourDeckMSG = "Here's your deck";
+
+    res.status(HTTP_CODES.SUCCESS.OK).send({ yourDeckMSG, deck_id: deck_id, remaining_cards: cardsInDeck, drawn_cards: drawnCards, }).end();
+}
+
+function getCard(req, res, next) {
+    const { deck_id } = req.params;
+    const deckData = decks[deck_id];
+    const drawMSG = "Card drawn: ";
+
+    const availableCards = deckData.cards.filter(card => !card.drawn);
+
+    const randomIndex = Math.floor(Math.random() * availableCards.length);
+    const drawnCard = availableCards[randomIndex];
+
+    drawnCard.drawn = true;
+    deckData.drawnCards.push(drawnCard);
+
+    let remaining = deckData.cards.filter(card => !card.drawn);
+
+    res.status(HTTP_CODES.SUCCESS.OK).send({drawMSG, card: drawnCard, remaining_cards: remaining}).end();
 }
 
 server.post("/temp/deck", makeDeck);
 server.patch("/temp/deck/shuffle/:deck_id", shuffleDeck);
 server.get("/temp/deck/:deck_id", getDeck);
+server.get("/temp/deck/:deck_id/card", getCard);
 
 server.listen(server.get("port"), function () {
   console.log("server running", server.get("port"));
