@@ -6,6 +6,7 @@ const port = process.env.PORT || 8000;
 
 server.set("port", port);
 
+server.use(express.json());
 server.use(express.static("public"));
 
 /*-------------------------------------- Uke 2 --------------------------------------------------*/
@@ -79,7 +80,7 @@ function makeDeck(req, res, next) {
   decks[deckId] = { cards: deck, drawnCards: [] };
   const deckMSG = "New deck created";
 
-  res.status(HTTP_CODES.SUCCESS.OK).send({ deckMSG, deck_id: deckId }).end();
+  res.status(HTTP_CODES.SUCCESS.OK).json({ deckMSG, deck_id: deckId }).end();
 }
 
 function shuffleDeck(req, res, next) {
@@ -90,7 +91,7 @@ function shuffleDeck(req, res, next) {
   const deck = deckData.cards;
 
   if (!deck) {
-    return res.status(HTTP_CODES.CLIENT_ERROR.NOT_FOUND).send({ message: "Deck not found" });
+    return res.status(HTTP_CODES.CLIENT_ERROR.NOT_FOUND).json({ message: "Deck not found" });
   }
 
   for (let i = deck.length - 1; i > 0; i--) {
@@ -98,7 +99,7 @@ function shuffleDeck(req, res, next) {
     [deck[i], deck[j]] = [deck[j], deck[i]];
   }
 
-  res.status(HTTP_CODES.SUCCESS.OK).send({ shuffleMSG, deck }).end();
+  res.status(HTTP_CODES.SUCCESS.OK).json({ shuffleMSG, deck }).end();
 }
 
 function getDeck(req, res, next) {
@@ -109,7 +110,7 @@ function getDeck(req, res, next) {
     const drawnCards = deckData.cards.filter((card) => card.drawn);
     const yourDeckMSG = "Here's your deck";
 
-    res.status(HTTP_CODES.SUCCESS.OK).send({ yourDeckMSG, deck_id: deck_id, remaining_cards: cardsInDeck, drawn_cards: drawnCards, }).end();
+    res.status(HTTP_CODES.SUCCESS.OK).json({ yourDeckMSG, deck_id: deck_id, remaining_cards: cardsInDeck, drawn_cards: drawnCards, }).end();
 }
 
 function getCard(req, res, next) {
@@ -127,8 +128,12 @@ function getCard(req, res, next) {
 
     let remaining = deckData.cards.filter(card => !card.drawn);
 
-    res.status(HTTP_CODES.SUCCESS.OK).send({drawMSG, card: drawnCard, remaining_cards: remaining}).end();
+    res.status(HTTP_CODES.SUCCESS.OK).json({drawMSG, card: drawnCard, remaining_cards: remaining}).end();
 }
+
+//-------------------------------- card script --------------------------------------------------------------
+
+
 
 server.post("/temp/deck", makeDeck);
 server.patch("/temp/deck/shuffle/:deck_id", shuffleDeck);
