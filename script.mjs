@@ -106,6 +106,10 @@ function getDeck(req, res, next) {
     const { deck_id } = req.params;
     const deckData = decks[deck_id];
 
+    if (!deckData) {
+        return res.status(HTTP_CODES.CLIENT_ERROR.NOT_FOUND).json({ message: "Deck not found" });
+    }
+
     const cardsInDeck = deckData.cards.filter(card => !card.drawn);
     const drawnCards = deckData.cards.filter((card) => card.drawn);
     const yourDeckMSG = "Here's your deck";
@@ -116,9 +120,18 @@ function getDeck(req, res, next) {
 function getCard(req, res, next) {
     const { deck_id } = req.params;
     const deckData = decks[deck_id];
+
+    if (!deckData) {
+        return res.status(HTTP_CODES.CLIENT_ERROR.NOT_FOUND).json({ message: "Deck not found" });
+    }
+
     const drawMSG = "Card drawn: ";
 
     const availableCards = deckData.cards.filter(card => !card.drawn);
+
+    if (availableCards.length === 0) {
+        return res.status(HTTP_CODES.CLIENT_ERROR.NOT_FOUND).json({ message: "No cards left in the deck" });
+    }
 
     const randomIndex = Math.floor(Math.random() * availableCards.length);
     const drawnCard = availableCards[randomIndex];
