@@ -3,10 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Cards</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+    <h1>Cards</h1>
+    <button id="new-deck">New deck</button>
+    <button id="shuffle-deck" disabled>Shuffle deck</button>
+    <button id="draw-card" disabled>Draw a card</button>
     
+    <div class="card" id="card-display">
+        <p id="card-text">No card drawn.</p>
+        <img id="card-image" src="" alt="" hidden>
+    </div>
+
+    <div id="my-cards">
+        <h3>Drawn cards</h3>
+        <div id="drawn-cards" class="card-container"></div>
+      
+        <h3>Remaining cards</h3>
+        <div id="remaining-cards" class="card-container"></div>
+      </div>
+
+    <div id="deck-container">
+        <h2>All cards:</h2>
+        <div id="card-list"></div>
+    </div>
+
+    <script src="client.js"></script>
 </body>
 </html>
