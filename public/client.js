@@ -93,6 +93,7 @@ newDeckButton.addEventListener("click", async () => {
 
     } catch (error) {
         console.error("Feil ved oppretting av kortstokk:", error);
+        cardText.textContent = "An error occurred while creating deck.";
     }
 });
 shuffleDeckButton.addEventListener("click", async () => {
@@ -110,6 +111,7 @@ shuffleDeckButton.addEventListener("click", async () => {
         renderDeck(deckData.remaining_cards);
     } catch (error) {
         console.error("Feil ved blanding av kortstokk:", error);
+        cardText.textContent = "An error occurred while shuffling.";
     }
 });
 
@@ -118,7 +120,7 @@ drawCardButton.addEventListener("click", async () => {
         const response = await fetch(`${baseURL}/${currentDeckId}/card`);
         const data = await response.json();
 
-        cardText.textContent = `${data.card.value} of ${data.card.suit} er trukket!`;
+        cardText.textContent = `${data.card.value} of ${data.card.suit} was drawn!`;
         cardImage.src = `img/${data.card.suit}_${data.card.value}.png`;
         cardImage.hidden = false;
 
@@ -126,5 +128,6 @@ drawCardButton.addEventListener("click", async () => {
         updateCards(data.remaining_cards);
     } catch (error) {
         console.error("Feil ved trekning av kort:", error);
+        cardText.textContent = "An error occurred while drawing the card.";
     }
 });
