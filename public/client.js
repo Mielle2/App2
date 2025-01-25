@@ -63,7 +63,7 @@ function updateCards(remainingCards) {
     });
 
     if (remainingCards.length === 0) {
-        remainingCardsContainer.innerHTML = "<p>Ingen kort igjen</p>";
+        remainingCardsContainer.innerHTML = "<p>No cards left</p>";
     }
 }
 
@@ -75,7 +75,7 @@ newDeckButton.addEventListener("click", async () => {
 
         currentDeckId = data.deck_id;
 
-        cardText.textContent = `Ny kortstokk laget! Deck ID: ${currentDeckId}`;
+        cardText.textContent = `New deck of cards! Deck ID: ${currentDeckId}`;
         cardImage.hidden = true;
 
         const drawnCardsContainer = document.getElementById("drawn-cards");
@@ -102,7 +102,7 @@ shuffleDeckButton.addEventListener("click", async () => {
         const response = await fetch(`${baseURL}/shuffle/${currentDeckId}`, { method: "PATCH" });
         const data = await response.json();
 
-        cardText.textContent = "Kortstokk blandet!";
+        cardText.textContent = "Deck shuffled!";
         cardImage.hidden = true;
 
         const deckResponse = await fetch(`${baseURL}/${currentDeckId}`);
