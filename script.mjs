@@ -1,13 +1,21 @@
 import express from "express";
 import HTTP_CODES from "./utils/httpCodes.mjs";
+import log from './modules/log.mjs';
+import { LOGG_LEVELS, eventLogger } from './modules/log.mjs';
+
+const ENABLE_LOGGING = false;
 
 const server = express();
 const port = process.env.PORT || 8000;
 
+const logger = log(LOGG_LEVELS.VERBOSE);
+
 server.set("port", port);
 
+server.use(logger);
 server.use(express.json());
 server.use(express.static("public"));
+
 
 /*-------------------------------------- Uke 2 --------------------------------------------------*/
 
