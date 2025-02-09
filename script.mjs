@@ -2,6 +2,7 @@ import express from "express";
 import HTTP_CODES from "./utils/httpCodes.mjs";
 import log from './modules/log.mjs';
 import { LOGG_LEVELS, eventLogger } from './modules/log.mjs';
+import sessions from "./modules/sessions.mjs";
 
 const ENABLE_LOGGING = false;
 
@@ -15,6 +16,7 @@ server.set("port", port);
 server.use(logger);
 server.use(express.json());
 server.use(express.static("public"));
+server.use(sessions);
 
 
 /*-------------------------------------- Uke 2 --------------------------------------------------*/
@@ -152,14 +154,23 @@ function getCard(req, res, next) {
     res.status(HTTP_CODES.SUCCESS.OK).json({drawMSG, card: drawnCard, remaining_cards: remaining}).end();
 }
 
-//-------------------------------- card script --------------------------------------------------------------
+//-------------------------------- Session --------------------------------------------------------------
 
+function getSession(req, res, next) {
+    if (!req.session.views) {
+        req.session.views = 1;
+    } else {
+        req.session.views++;
+    }
 
+    res.status(HTTP_CODES.SUCCESS.OK).send(`Session views: ${req.session.views}`).end();
+}
 
 server.post("/temp/deck", makeDeck);
 server.patch("/temp/deck/shuffle/:deck_id", shuffleDeck);
 server.get("/temp/deck/:deck_id", getDeck);
 server.get("/temp/deck/:deck_id/card", getCard);
+server.get("/", getSession);
 
 server.listen(server.get("port"), function () {
   console.log("server running", server.get("port"));
