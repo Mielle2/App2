@@ -13,7 +13,4 @@ treeRouter.get("/", (req, res, next) => {
 
 });
 
-
-
-
 export default treeRouter
