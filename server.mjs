@@ -17,7 +17,7 @@ const server = express();
 const port = process.env.PORT || 8000;
 
 const logger = log(LOGG_LEVELS.VERBOSE);
-setSessionLogLevel('verbose');
+//setSessionLogLevel('verbose');
 
 server.set("port", port);
 
