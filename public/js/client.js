@@ -131,3 +131,14 @@ drawCardButton.addEventListener("click", async () => {
         cardText.textContent = "An error occurred while drawing the card.";
     }
 });
+
+export async function loadModule(url) {
+    try {
+        const response = await fetch(url);
+        const html = await response.text();
+        document.getElementById("module-content").innerHTML = html;
+    } catch (error) {
+        document.getElementById("module-content").innerHTML = `<p>Error loading module.</p>`;
+        console.error("Error:", error);
+    }
+}
