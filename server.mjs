@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import sequelize from "./data/db.js";
-import Ingredient from "./models/Ingredient.js";
+import Ingredient from "./models/ingredients.js";
 
 server.set("port", port);
 
