@@ -1,49 +1,38 @@
 import express from "express";
-import HTTP_CODES from "./utils/httpCodes.mjs";
-import log from './modules/log.mjs';
-import { LOGG_LEVELS, eventLogger } from './modules/log.mjs';
-import { startSession, updateSession } from './modules/sessions.mjs';
-import treeRouter from './routes/treeAPI.mjs';
-import questLogRouter from './routes/questLogAPI.mjs';
-import userRouter from './routes/userAPI.mjs';
-
-import { getRoot } from './modules/uke2.mjs';
-import { getPoem, getQuote, getSum } from './modules/uke3.mjs';
-import { makeDeck, shuffleDeck, getDeck, getCard } from './modules/uke4.mjs';
-
-const ENABLE_LOGGING = false;
-
-const server = express();
-const port = process.env.PORT || 8000;
-
-const logger = log(LOGG_LEVELS.VERBOSE);
-//setSessionLogLevel('verbose');
+import cors from "cors";
+import sequelize from "./db.js";
+import Ingredient from "./models/Ingredient.js";
 
 server.set("port", port);
 
-server.use(logger);
+const server = express();
 server.use(express.json());
 server.use(express.static("public"));
-server.use(startSession);
-server.use("/tree/", treeRouter);
-server.use("/quest", questLogRouter);
-server.use("/user", userRouter)
-server.use(updateSession);
+server.use(cors());
 
-// Uke 2
-server.get("/", getRoot);
+server.post("/check", async (req, res) => {
+    const { ingredients } = req.body;
 
-// Uke 3
-server.get("/tmp/poem", getPoem);
-server.get("/tmp/quote", getQuote);
-server.post("/tmp/sum/:a/:b", getSum);
+    if (!ingredients || !Array.isArray(ingredients)) {
+        return res.status(400).json({ error: "Ugyldig ingrediensliste" });
+    }
 
-// Uke 4
-server.post("/temp/deck", makeDeck);
-server.patch("/temp/deck/shuffle/:deck_id", shuffleDeck);
-server.get("/temp/deck/:deck_id", getDeck);
-server.get("/temp/deck/:deck_id/card", getCard);
+    const results = await Promise.all(ingredients.map(async (name) => {
+        const ingredient = await Ingredient.findOne({ where: { name } });
+        return ingredient ? 
+            { name, compatibility: ingredient.compatibility, description: ingredient.description } :
+            { name, compatibility: "Ukjent", description: "Ingen informasjon funnet." };
+    }));
+
+    res.json(results);
+});
+
+const port = process.env.port || 8000;
+server.listen(port, async () => {
+    console.log(`Server kjører på port ${port}`);
+    await sequelize.sync();
+});
 
 server.listen(server.get("port"), function () {
-  console.log("server running", server.get("port"));
-});
+    console.log("server running", server.get("port"));
+  });
