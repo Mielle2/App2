@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import sequelize from "./db.js";
+import sequelize from "./data/db.js";
 import Ingredient from "./models/Ingredient.js";
 
 server.set("port", port);
