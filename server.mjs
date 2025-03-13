@@ -1,37 +1,21 @@
 import express from "express";
 import cors from "cors";
 import sequelize from "./data/db.js";
-import Ingredient from "./models/ingredients.js";
+import ingredientAPI from "./routes/ingredientAPI.mjs";
 
-const server = express();
+const app = express();
 const port = process.env.PORT || 8000;
 
-server.use(express.json());
-server.use(express.static("public"));
-server.use(cors());
+app.use(cors());
+app.use(express.json());
+app.use(express.static("public"));
 
-server.post("/check", async (req, res) => {
-    const { ingredients } = req.body;
+app.use("/api", ingredientAPI);
 
-    if (!ingredients || !Array.isArray(ingredients)) {
-        return res.status(400).json({ error: "Ugyldig ingrediensliste" });
-    }
-
-    const results = await Promise.all(ingredients.map(async (name) => {
-        const ingredient = await Ingredient.findOne({ where: { name } });
-        return ingredient ? 
-            { name, compatibility: ingredient.compatibility, description: ingredient.description } :
-            { name, compatibility: "Ukjent", description: "Ingen informasjon funnet." };
-    }));
-
-    res.json(results);
-});
+app.get("/", (req, res) => res.send("Backend API kjører!"));
 
 sequelize.sync().then(() => {
-    server.listen(port, () => {
+    app.listen(port, () => {
         console.log(`Server kjører på port ${port}`);
     });
-}).catch((err) => {
-    console.error("Feil ved tilkobling til databasen:", err);
-});
-
+}).catch(err => console.error("Databasefeil:", err));
