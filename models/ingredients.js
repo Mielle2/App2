@@ -8,7 +8,7 @@ const Ingredient = sequelize.define("Ingredient", {
         unique: true
     },
     compatibility: {
-        type: DataTypes.STRING, // "Grønn", "Blå", "Gul", "Rød"
+        type: DataTypes.JSON,
         allowNull: false
     },
     description: {
