@@ -1,19 +1,9 @@
-Uke 3
-Oppgave: Poem, Quote, sum
+Dermanote
 
-Uke 4
-Oppgave: Kortstokk
-Playing cards pngs was downloaded from https://github.com/hanhaechi/playing-cards
+Dermanote er en måte å kunne sjekke ingredienser fra hudpleieprodukter og se om ingrediensene er kompatible med hudtypen din. Det er 4 kategorier lagt til. Best, for ingredienser som egner godt. Bra, som passer godt. Variert som du burde være forsiktig med og dårlig, ingredienser du burde være forsiktig med eller unngå. Disse har fargekodene blå, grønn, gul og rød.
 
-Uke 5
-Oppgave: Middelware
+Et eksempel på ingrediensliste: 
 
-Uke 8
-PROD (render): https://mielle-2dr7.onrender.com 
+Dr. Althea 345 Relief cream:
 
-Uke 9
-Oppgave: 
-PWA
-
----------------------------------------------------------------------------------------
-Er ikke ferdig enda og mangler flere justeringer for å optimalisere den. Trenger å rydde opp i filer.
+WATER, PROPANEDIOL, GLYCERIN, CYCLOHEXASILOXANE, 1,2-HEXANEDIOL, NIACINAMIDE, CAPRYLIC/CAPRIC, TRIGLYCERIDE, POLYGLYCERIN-3, PANTHENOL, POLYGLYCERYL-10 STEARATE, HYDROGENATED POLYDECENE, HYDROGENATED POLY(C6-14 OLEFIN), DICAPRYLYL CARBONATE, AMMONIUM ACRYLOYLDIMETHYLTAURATE/VP COPOLYMER, C14-22 ALCOHOLS, POLYMETHYLSILSESQUIOXANE, C12-20 ALKYL GLUCOSIDE, BUTYLENE GLYCOL, ACRYLATES/C10-30 ALKYL ACRYLATE CROSSPOLYMER, ETHYLHEXYLGLYCERIN, POLYQUATERNIUM-51, TROMETHAMINE, SODIUM HYALURONATE, COPTIS JAPONICA ROOT EXTRACT, HOUTTUYNIA CORDATA EXTRACT, OENOTHERA BIENNIS (EVENING PRIMROSE) FLOWER EXTRACT, BETA-GLUCAN, RESVERATROL, GARDENIA FLORIDA FRUIT EXTRACT, LAVANDULA ANGUSTIFOLIA (LAVENDER) FLOWER EXTRACT, OPUNTIA FICUS-INDICA STEM EXTRACT, HYDROLYZED HYALURONIC ACID, CENTELLA ASIATICA LEAF EXTRACT, PHENOXYETHANOL, HIBISCUS SABDARIFFA FLOWER EXTRACT, TOCOPHEROL, CORALLINA OFFICINALIS EXTRACT, CERAMIDE NP
