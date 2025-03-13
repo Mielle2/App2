@@ -3,9 +3,9 @@ import cors from "cors";
 import sequelize from "./data/db.js";
 import Ingredient from "./models/ingredients.js";
 
-server.set("port", port);
-
 const server = express();
+const port = process.env.PORT || 8000;
+
 server.use(express.json());
 server.use(express.static("public"));
 server.use(cors());
@@ -27,12 +27,11 @@ server.post("/check", async (req, res) => {
     res.json(results);
 });
 
-const port = process.env.port || 8000;
-server.listen(port, async () => {
-    console.log(`Server kjører på port ${port}`);
-    await sequelize.sync();
+sequelize.sync().then(() => {
+    server.listen(port, () => {
+        console.log(`Server kjører på port ${port}`);
+    });
+}).catch((err) => {
+    console.error("Feil ved tilkobling til databasen:", err);
 });
 
-server.listen(server.get("port"), function () {
-    console.log("server running", server.get("port"));
-  });
