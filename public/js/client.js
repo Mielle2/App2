@@ -22,17 +22,10 @@ document.querySelectorAll(".skinType").forEach(button => {
 
 document.getElementById("checkButton").addEventListener("click", async () => {
     const selectedSkinType = document.querySelector("input[name='skinType']:checked")?.value;
+    if (!selectedSkinType) return alert("Please select a skin type!");
 
-    if (!selectedSkinType) {
-        alert("Please select a skin type!");
-        return;
-    }
-
-    const input = document.getElementById("ingredientInput").value.trim();
-    if (!input) {
-        alert("Paste the ingredient list first!");
-        return;
-    }
+    let input = document.getElementById("ingredientInput").value.trim();
+    if (!input) return alert("Paste the ingredient list first!");
 
     const ingredients = input
         .toLowerCase()
@@ -40,19 +33,19 @@ document.getElementById("checkButton").addEventListener("click", async () => {
         .split(",")
         .map(i => i.trim());
 
+    console.log("Processed Ingredients:", ingredients);
+
     try {
         const response = await fetch(`https://mielle-2dr7.onrender.com/api/ingredients?skinType=${selectedSkinType}`, {
-            method: "GET",
+            method: "POST",
             headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ingredients })
         });
 
-        const availableIngredients = await response.json();
+        const data = await response.json();
+        console.log("API Response:", data);
 
-        const matchedIngredients = availableIngredients.filter(ing => 
-            ingredients.includes(ing.name.toLowerCase())
-        );
-
-        displayResults(matchedIngredients);
+        displayResults(data, ingredients);
     } catch (error) {
         console.error("Error fetching data:", error);
     }
@@ -60,7 +53,8 @@ document.getElementById("checkButton").addEventListener("click", async () => {
 
 
 
-function displayResults(results) {
+
+function displayResults(results, originalIngredients) {
     const resultDiv = document.getElementById("result");
     resultDiv.innerHTML = "";
 
@@ -85,7 +79,13 @@ function displayResults(results) {
             category = compatibility || "Unknown";
         }
 
-        sortedResults[category].push({ name, description });
+        sortedResults[category].push({ name, description: description || "No description available" });
+    });
+
+    originalIngredients.forEach(ingredient => {
+        if (!results.some(r => r.name.toLowerCase() === ingredient.toLowerCase())) {
+            sortedResults.Unknown.push({ name: ingredient, description: "No data found in database" });
+        }
     });
 
     function createSection(title, items, colorClass) {
@@ -107,4 +107,3 @@ function displayResults(results) {
         ${createSection("No Registered Effect", sortedResults.Unknown, "gray")}
     `;
 }
-
