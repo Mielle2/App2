@@ -4,16 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="manifest.webmanifest">
-    <title>Cards</title>
+    <title>Dermanote</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <h1>Dermanote - Ingredienssjekk</h1>
-    <textarea id="ingredientInput" placeholder="Lim inn ingredienslisten her..."></textarea>
-    <button id="checkButton">Sjekk</button>
-    <div id="result"></div>
+    <h1>Ingredient checker based on skintype</h1>
 
-    <script type="module" src="js/client.js"></script>
+    <h3>Select Your Skin Type:</h3>
+    <div id="skinTypeButtons">
+        <label><input type="radio" name="skinType" value="Oily"> Oily</label>
+        <label><input type="radio" name="skinType" value="Dry"> Dry</label>
+        <label><input type="radio" name="skinType" value="Combination"> Combination</label>
+        <label><input type="radio" name="skinType" value="Normal"> Normal</label>
+    </div>
+    
+    <textarea id="ingredientInput" placeholder="Paste ingredient list here..."></textarea>
+    <button id="checkButton">Check</button>
+    <div id="result"></div>
+    
+
+    <script src="js/client.js" type="module"></script>
     <script src="js/app.mjs" type="module"></script>
 </body>
 </html>

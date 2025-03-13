@@ -15,13 +15,37 @@ button {
     font-size: 16px;
 }
 
+#skinTypeButtons label {
+    display: block;
+    font-size: 18px;
+    margin: 5px;
+    cursor: pointer;
+}
+
+input[type="radio"] {
+    margin-right: 8px;
+    transform: scale(1.3); /* Makes radio buttons bigger */
+}
+
 .ingredient {
     margin-top: 10px;
     padding: 10px;
     border-radius: 5px;
 }
 
-.green { background-color: lightgreen; }
-.blue { background-color: lightblue; }
-.yellow { background-color: yellow; }
-.red { background-color: lightcoral; }
+h3.green { color: green; }
+h3.blue { color: blue; }
+h3.yellow { color: orange; }
+h3.red { color: red; }
+h3.gray { color: gray; }
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+li {
+    margin: 5px 0;
+    padding: 5px;
+    border-bottom: 1px solid #ddd;
+}
