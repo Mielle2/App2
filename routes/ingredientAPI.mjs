@@ -51,62 +51,56 @@ router.get("/ingredients", async (req, res) => {
 });
 
 router.post("/check", async (req, res) => {
-  const { ingredients, skinType } = req.body;
-
-  if (!ingredients || !Array.isArray(ingredients) || !skinType) {
-    return res
-      .status(400)
-      .json({ message: "Invalid ingredient list or missing skinType" });
-  }
-
-  try {
-    const cleanIngredients = ingredients.map((i) => i.trim().toLowerCase());
-
-    console.log("Checking database for ingredients:", cleanIngredients);
-    console.log("SkinType received:", skinType);
-
-    const skinTypeRecord = await SkinType.findOne({
-      where: sequelize.where(
-        sequelize.fn("LOWER", sequelize.col("name")),
-        skinType.toLowerCase()
-      ),
-    });
-
-    if (!skinTypeRecord) {
-      console.error("Skin type not found in database!");
-      return res.status(404).json({ message: "Skin type not found" });
+    const { ingredients, skinType } = req.body;
+  
+    if (!ingredients || !Array.isArray(ingredients) || !skinType) {
+      return res
+        .status(400)
+        .json({ message: "Invalid ingredient list or missing skinType" });
     }
+  
+    try {
+      const cleanIngredients = ingredients.map((i) => i.trim().toLowerCase());
+  
+      console.log("Checking database for ingredients:", cleanIngredients);
+      console.log("SkinType received:", skinType);
+  
+      const skinTypeRecord = await SkinType.findOne({
+        where: sequelize.where(
+          sequelize.fn("LOWER", sequelize.col("name")),
+          skinType.toLowerCase()
+        ),
+      });
+  
+      if (!skinTypeRecord) {
+        console.error("Skin type not found in database!");
+        return res.status(404).json({ message: "Skin type not found" });
+      }
+  
+      console.log("Found skinType ID:", skinTypeRecord.id);
+  
+      const finalQuery = `
+        SELECT name, 
+               description, 
+               compatibility->> ? AS rating 
+        FROM ingredients 
+        WHERE LOWER(name) IN (${cleanIngredients.map(() => "?").join(",")})
+      `;
+  
+      console.log("Final SQL Query:", finalQuery);
+      console.log("Query Parameters:", [skinType.toLowerCase(), ...cleanIngredients]);
 
-    console.log("Found skinType ID:", skinTypeRecord.id);
-
-    const placeholders = cleanIngredients.map(() => "?").join(",");
-    const finalQuery = `
-    SELECT name, 
-           description, 
-           compatibility->> CAST(:skinType AS TEXT) AS rating 
-    FROM ingredients 
-    WHERE LOWER(name) = ANY(ARRAY[${cleanIngredients.map(() => "?").join(",")}])
-`;
-
-    console.log("Final SQL Query:", finalQuery);
-    console.log("Query Parameters:", {
-      skinType: skinType.toLowerCase(),
-      ingredients: cleanIngredients,
-    });
-
-    const results = await sequelize.query(finalQuery, {
-      replacements: { skinType: skinType.toLowerCase(), ...cleanIngredients },
-      type: sequelize.QueryTypes.SELECT,
-    });
-
-    console.log("Database Query Results:", results);
-    res.json(results);
-  } catch (error) {
-    console.error("Internal API Error:", error);
-    res
-      .status(500)
-      .json({ message: "Internal server error", error: error.message });
-  }
-});
+      const results = await sequelize.query(finalQuery, {
+        replacements: [skinType.toLowerCase(), ...cleanIngredients],
+        type: sequelize.QueryTypes.SELECT,
+      });
+  
+      console.log("Database Query Results:", results);
+      res.json(results);
+    } catch (error) {
+      console.error("Internal API Error:", error);
+      res.status(500).json({ message: "Internal server error", error: error.message });
+    }
+  });  
 
 export default router;
