@@ -2,11 +2,11 @@ import express from "express";
 import sequelize from "../data/db.js";
 import { DataTypes } from "sequelize";
 import Ingredient from "../models/ingredients.js";
-
-const router = express.Router();
-
+import { Op } from "sequelize";
 import SkinType from "../models/skinType.js";
 import IngredientSkinCompatibility from "../models/ingredientSkinCompatibility.js";
+
+const router = express.Router();
 
 router.get("/ingredients", async (req, res) => {
     const { skinType } = req.query;
@@ -22,16 +22,17 @@ router.get("/ingredients", async (req, res) => {
         const skinTypeId = skinTypeRecord.id;
 
         const results = await sequelize.query(
-            `SELECT i.name, isc.rating, i.description
-             FROM ingredients i
-             JOIN ingredient_skin_compatibility isc ON i.id = isc.ingredient_id
-             WHERE isc.skin_type_id = :skinTypeId
-             ORDER BY isc.rating DESC`,
+            `SELECT i.name, 
+                    i.description, 
+                    i.compatibility->> :skinType AS rating 
+             FROM ingredients i 
+             WHERE LOWER(i.name) IN (${cleanIngredients.map(() => "?").join(",")})`,
             {
-                replacements: { skinTypeId },
-                type: sequelize.QueryTypes.SELECT,
+                replacements: { skinType: skinType.toLowerCase(), ...cleanIngredients },
+                type: sequelize.QueryTypes.SELECT
             }
         );
+        
 
         res.json(results);
     } catch (error) {
@@ -41,42 +42,50 @@ router.get("/ingredients", async (req, res) => {
 });
 
 router.post("/check", async (req, res) => {
-    const { ingredients } = req.body;
-    if (!ingredients || !Array.isArray(ingredients)) {
-        return res.status(400).json({ message: "Invalid ingredient list" });
+    const { ingredients, skinType } = req.body;
+    if (!ingredients || !Array.isArray(ingredients) || !skinType) {
+        return res.status(400).json({ message: "Invalid ingredient list or missing skinType" });
     }
 
     try {
-        const results = await Promise.all(ingredients.map(async (ingredient) => {
-            const ing = await Ingredient.findOne({ 
-                where: sequelize.where(
-                    sequelize.fn('LOWER', sequelize.col('name')), 
-                    ingredient.toLowerCase()
-                )
-            });
+        const cleanIngredients = ingredients.map(i => i.trim().toLowerCase());
 
-            if (!ing) return { name: ingredient, compatibility: "Unknown", description: "No data found" };
+        console.log("🔥 Checking database for ingredients:", cleanIngredients);
 
-            const compatibilityData = await IngredientSkinCompatibility.findAll({
-                where: { ingredient_id: ing.id },
-                include: [{ model: SkinType, attributes: ["name"] }]
-            });
+        const skinTypeRecord = await SkinType.findOne({ 
+            where: sequelize.where(
+                sequelize.fn('LOWER', sequelize.col('name')), 
+                skinType.toLowerCase()
+            )
+        });
 
-            return {
-                name: ing.name,
-                compatibility: compatibilityData.map(c => ({
-                    skinType: c.SkinType.name,
-                    rating: c.rating
-                })),
-                description: ing.description
-            };
-        }));
+        if (!skinTypeRecord) {
+            console.error("❌ Skin type not found in database!");
+            return res.status(404).json({ message: "Skin type not found" });
+        }
 
+        const finalQuery = `
+            SELECT i.name, isc.rating, i.description
+            FROM ingredients i
+            JOIN ingredient_skin_compatibility isc ON i.id = isc.ingredient_id
+            JOIN skin_types st ON isc.skin_type_id = st.id
+            WHERE LOWER(st.name) = ? 
+            AND LOWER(i.name) IN (${cleanIngredients.map(() => "?").join(",")})
+            ORDER BY isc.rating DESC
+        `;
+
+        const results = await sequelize.query(finalQuery, {
+            replacements: [skinType.toLowerCase(), ...cleanIngredients],
+            type: sequelize.QueryTypes.SELECT
+        });
+        
         res.json(results);
     } catch (error) {
-        console.error(error);
         res.status(500).json({ message: "Internal server error" });
     }
 });
+
+
+
 
 export default router;

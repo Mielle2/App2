@@ -1,7 +1,7 @@
 const cacheID = "sienceV2";
 const contentToCache = [
     "/index.html",
-    "/app.mjs",
+    "/js/app.mjs",
     "/css/style.css"
 ];
 
