@@ -12,7 +12,7 @@ app.use(express.static("public"));
 
 app.use("/api", ingredientAPI);
 
-app.get("/", (req, res) => res.send("Backend API kjører!"));
+app.get("/", (req, res, next) => res.send("Backend API kjører!"));
 
 sequelize.sync().then(() => {
     app.listen(port, () => {

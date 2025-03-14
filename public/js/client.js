@@ -38,10 +38,10 @@ document.getElementById("checkButton").addEventListener("click", async () => {
         const data = await response.json();
         if (!response.ok) throw new Error(data.message || "Unknown error from server");
     
-        console.log("🔥 API Response:", data);
+        console.log("API Response:", data);
         displayResults(data, ingredients);
     } catch (error) {
-        console.error("🔥 Error fetching data:", error);
+        console.error("Error fetching data:", error);
         alert(`Error: ${error.message}`);
     }
     
@@ -55,8 +55,8 @@ document.querySelectorAll(".skinType").forEach(button => {
 });
 
 function displayResults(results, originalIngredients) {
-    console.log("🔥 Results received in displayResults:", results);
-    console.log("🔥 Original ingredients:", originalIngredients);
+    console.log("Results received in displayResults:", results);
+    console.log("Original ingredients:", originalIngredients);
 
     const resultDiv = document.getElementById("result");
     resultDiv.innerHTML = "";
@@ -84,7 +84,7 @@ function displayResults(results, originalIngredients) {
 
     originalIngredients.forEach(ingredient => {
         if (!results.some(r => r.name.toLowerCase() === ingredient.toLowerCase())) {
-            console.warn("🔥 Missing from results:", ingredient);
+            console.warn("Missing from results:", ingredient);
             sortedResults.Unknown.push({ name: ingredient, description: "No data found in database" });
         }
     });
@@ -100,7 +100,7 @@ function displayResults(results, originalIngredients) {
         return sectionHTML;
     }
 
-    console.log("🔥 Final sorted results:", sortedResults);
+    console.log("Final sorted results:", sortedResults);
 
     resultDiv.innerHTML = `
         ${createSection("Best Ingredients", sortedResults.Best, "blue")}
