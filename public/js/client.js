@@ -34,13 +34,17 @@ document.getElementById("checkButton").addEventListener("click", async () => {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ingredients, skinType: selectedSkinType })
         });
-
+    
         const data = await response.json();
-
+        if (!response.ok) throw new Error(data.message || "Unknown error from server");
+    
+        console.log("🔥 API Response:", data);
         displayResults(data, ingredients);
     } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("🔥 Error fetching data:", error);
+        alert(`Error: ${error.message}`);
     }
+    
 });
 
 document.querySelectorAll(".skinType").forEach(button => {
