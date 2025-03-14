@@ -18,17 +18,17 @@ router.get("/ingredients", async (req, res) => {
   }
 
   try {
-    console.log("🔥 Received skinType:", skinType);
+    console.log("Received skinType:", skinType);
 
     const skinTypeRecord = await SkinType.findOne({
       where: { name: skinType },
     });
     if (!skinTypeRecord) {
-      console.error("❌ Skin type not found!");
+      console.error("Skin type not found!");
       return res.status(404).json({ message: "Skin type not found" });
     }
 
-    console.log("🔥 Found skinType ID:", skinTypeRecord.id);
+    console.log("Found skinType ID:", skinTypeRecord.id);
 
     const results = await sequelize.query(
       `SELECT i.name, 
@@ -42,10 +42,10 @@ router.get("/ingredients", async (req, res) => {
       }
     );
 
-    console.log("🔥 Database Query Results:", results);
+    console.log("Database Query Results:", results);
     res.json(results);
   } catch (error) {
-    console.error("❌ API Error:", error);
+    console.error("API Error:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 });
@@ -62,8 +62,8 @@ router.post("/check", async (req, res) => {
   try {
     const cleanIngredients = ingredients.map((i) => i.trim().toLowerCase());
 
-    console.log("🔥 Checking database for ingredients:", cleanIngredients);
-    console.log("🔥 SkinType received:", skinType);
+    console.log("Checking database for ingredients:", cleanIngredients);
+    console.log("SkinType received:", skinType);
 
     const skinTypeRecord = await SkinType.findOne({
       where: sequelize.where(
@@ -73,37 +73,36 @@ router.post("/check", async (req, res) => {
     });
 
     if (!skinTypeRecord) {
-      console.error("❌ Skin type not found in database!");
+      console.error("Skin type not found in database!");
       return res.status(404).json({ message: "Skin type not found" });
     }
 
-    console.log("🔥 Found skinType ID:", skinTypeRecord.id);
+    console.log("Found skinType ID:", skinTypeRecord.id);
 
     const placeholders = cleanIngredients.map(() => "?").join(",");
     const finalQuery = `
     SELECT name, 
            description, 
-           compatibility->> :skinType AS rating 
+           compatibility->> CAST(:skinType AS TEXT) AS rating 
     FROM ingredients 
-    WHERE LOWER(name) = ANY(ARRAY[:ingredients])
+    WHERE LOWER(name) = ANY(ARRAY[${cleanIngredients.map(() => "?").join(",")}])
 `;
 
-console.log("🔥 Final SQL Query:", finalQuery);
-console.log("🔥 Query Parameters:", {
-    skinType: skinType.toLowerCase(),
-    ingredients: cleanIngredients
-});
+    console.log("Final SQL Query:", finalQuery);
+    console.log("Query Parameters:", {
+      skinType: skinType.toLowerCase(),
+      ingredients: cleanIngredients,
+    });
 
-const results = await sequelize.query(finalQuery, {
-    replacements: { skinType: skinType.toLowerCase(), ingredients: cleanIngredients },
-    type: sequelize.QueryTypes.SELECT
-});
+    const results = await sequelize.query(finalQuery, {
+      replacements: { skinType: skinType.toLowerCase(), ...cleanIngredients },
+      type: sequelize.QueryTypes.SELECT,
+    });
 
-
-    console.log("🔥 Database Query Results:", results);
+    console.log("Database Query Results:", results);
     res.json(results);
   } catch (error) {
-    console.error("❌ Internal API Error:", error);
+    console.error("Internal API Error:", error);
     res
       .status(500)
       .json({ message: "Internal server error", error: error.message });
