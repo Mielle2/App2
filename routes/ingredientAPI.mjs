@@ -16,33 +16,39 @@ router.get("/ingredients", async (req, res) => {
     }
 
     try {
-        const skinTypeRecord = await SkinType.findOne({ where: { name: skinType } });
-        if (!skinTypeRecord) return res.status(404).json({ message: "Skin type not found" });
+        console.log("🔥 Received skinType:", skinType);
 
-        const skinTypeId = skinTypeRecord.id;
+        const skinTypeRecord = await SkinType.findOne({ where: { name: skinType } });
+        if (!skinTypeRecord) {
+            console.error("❌ Skin type not found!");
+            return res.status(404).json({ message: "Skin type not found" });
+        }
+
+        console.log("🔥 Found skinType ID:", skinTypeRecord.id);
 
         const results = await sequelize.query(
             `SELECT i.name, 
                     i.description, 
                     i.compatibility->> :skinType AS rating 
              FROM ingredients i 
-             WHERE LOWER(i.name) IN (${cleanIngredients.map(() => "?").join(",")})`,
+             WHERE LOWER(i.name) IN (SELECT LOWER(name) FROM ingredients)`, 
             {
-                replacements: { skinType: skinType.toLowerCase(), ...cleanIngredients },
+                replacements: { skinType: skinType.toLowerCase() },
                 type: sequelize.QueryTypes.SELECT
             }
         );
-        
 
+        console.log("🔥 Database Query Results:", results);
         res.json(results);
     } catch (error) {
-        console.error(error);
+        console.error("❌ API Error:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 });
 
 router.post("/check", async (req, res) => {
     const { ingredients, skinType } = req.body;
+
     if (!ingredients || !Array.isArray(ingredients) || !skinType) {
         return res.status(400).json({ message: "Invalid ingredient list or missing skinType" });
     }
@@ -51,10 +57,11 @@ router.post("/check", async (req, res) => {
         const cleanIngredients = ingredients.map(i => i.trim().toLowerCase());
 
         console.log("🔥 Checking database for ingredients:", cleanIngredients);
+        console.log("🔥 SkinType received:", skinType);
 
-        const skinTypeRecord = await SkinType.findOne({ 
+        const skinTypeRecord = await SkinType.findOne({
             where: sequelize.where(
-                sequelize.fn('LOWER', sequelize.col('name')), 
+                sequelize.fn('LOWER', sequelize.col('name')),
                 skinType.toLowerCase()
             )
         });
@@ -64,28 +71,33 @@ router.post("/check", async (req, res) => {
             return res.status(404).json({ message: "Skin type not found" });
         }
 
+        console.log("🔥 Found skinType ID:", skinTypeRecord.id);
+
+        // Fix for correct SQL query with placeholders
+        const placeholders = cleanIngredients.map(() => "?").join(",");
         const finalQuery = `
-            SELECT i.name, isc.rating, i.description
-            FROM ingredients i
-            JOIN ingredient_skin_compatibility isc ON i.id = isc.ingredient_id
-            JOIN skin_types st ON isc.skin_type_id = st.id
-            WHERE LOWER(st.name) = ? 
-            AND LOWER(i.name) IN (${cleanIngredients.map(() => "?").join(",")})
-            ORDER BY isc.rating DESC
+            SELECT i.name, 
+                   i.description, 
+                   i.compatibility->> :skinType AS rating 
+            FROM ingredients i 
+            WHERE LOWER(i.name) IN (${placeholders})
         `;
+
+        console.log("🔥 Final SQL Query:", finalQuery);
+        console.log("🔥 Query Parameters:", [skinType.toLowerCase(), ...cleanIngredients]);
 
         const results = await sequelize.query(finalQuery, {
             replacements: [skinType.toLowerCase(), ...cleanIngredients],
             type: sequelize.QueryTypes.SELECT
         });
-        
+
+        console.log("🔥 Database Query Results:", results);
         res.json(results);
     } catch (error) {
+        console.error("❌ Internal API Error:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 });
 
-
-
-
 export default router;
+
